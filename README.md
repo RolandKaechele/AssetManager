@@ -34,9 +34,14 @@ Maps logical string ids to `Resources/` paths (or `StreamingAssets/` file overri
 git clone https://github.com/RolandKaechele/AssetManager.git Assets/AssetManager
 ```
 
-### Option C — Manual copy
+### Option C — npm / postinstall
 
-Copy the `AssetManager/` folder into your project's `Assets/` directory.
+```bash
+cd Assets/AssetManager
+npm install
+```
+
+`postinstall.js` creates the required `StreamingAssets/` folder under `Assets/` and optionally copies example JSON files.
 
 
 ## Scene Setup

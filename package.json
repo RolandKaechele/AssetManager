@@ -23,5 +23,8 @@
     "resources",
     "framework"
   ],
-  "documentationUrl": "https://github.com/RolandKaechele/AssetManager#readme"
+  "documentationUrl": "https://github.com/RolandKaechele/AssetManager#readme",
+  "scripts": {
+    "postinstall": "node postinstall.js"
+  }
 }

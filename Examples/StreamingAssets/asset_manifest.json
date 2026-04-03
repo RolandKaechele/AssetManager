@@ -1,0 +1,16 @@
+{
+  "entries": [
+    {
+      "id": "portrait_jan_tenner",
+      "type": 0,
+      "resourcePath": "Characters/JanTenner/Portrait",
+      "modOverridePath": ""
+    },
+    {
+      "id": "music_main_theme",
+      "type": 1,
+      "resourcePath": "Audio/Music/MainTheme",
+      "modOverridePath": ""
+    }
+  ]
+}
