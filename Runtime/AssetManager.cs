@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
 namespace AssetManager.Runtime
 {
@@ -77,7 +80,11 @@ namespace AssetManager.Runtime
     /// </summary>
     [AddComponentMenu("AssetManager/Asset Manager")]
     [DisallowMultipleComponent]
+#if ODIN_INSPECTOR
+    public class AssetManager : SerializedMonoBehaviour
+#else
     public class AssetManager : MonoBehaviour
+#endif
     {
         // -------------------------------------------------------------------------
         // Inspector

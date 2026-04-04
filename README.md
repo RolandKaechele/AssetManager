@@ -14,6 +14,7 @@ Maps logical string ids to `Resources/` paths (or `StreamingAssets/` file overri
 - **JSON / Modding** — load and merge registry entries from `StreamingAssets/asset_manifest.json`; JSON entries override Inspector entries by id and can add new ones; cache is invalidated for updated entries
 - **EventManager integration** — fires `AssetLoaded` as a named GameEvent on first cache (activated via `ASSETMANAGER_EM`)
 - **Custom Inspector** — per-entry cache status with Preload All / Release All controls at runtime
+- **Odin Inspector integration** — `SerializedMonoBehaviour` base for full Inspector serialization of complex types; runtime-display fields marked `[ReadOnly]` in Play Mode (activated via `ODIN_INSPECTOR`)
 
 
 ## Installation
@@ -161,12 +162,18 @@ Requires `ASSETMANAGER_EM` define and [EventManager](https://github.com/RolandKa
 Fires `AssetLoaded` (value = asset id) when an asset is first loaded into the cache.
 
 
+### Odin Inspector (`ODIN_INSPECTOR`)
+
+Requires `ODIN_INSPECTOR` define (standard Odin Inspector scripting define). Inherits from `SerializedMonoBehaviour` for full Inspector serialization; runtime-display fields are marked `[ReadOnly]`.
+
+
 ## Dependencies
 
 | Dependency | Required | Notes |
 | ---------- | -------- | ----- |
 | Unity 2022.3+ | ✓ | |
 | EventManager | optional | Required when `ASSETMANAGER_EM` is defined |
+| Odin Inspector | optional | Required when `ODIN_INSPECTOR` is defined |
 
 
 ## Repository
