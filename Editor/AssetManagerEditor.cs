@@ -16,6 +16,9 @@ namespace AssetManager.Editor
         {
             DrawDefaultInspector();
 
+            EditorGUILayout.Space(4);
+            if (GUILayout.Button("Open JSON Editor")) AssetJsonEditorWindow.ShowWindow();
+
             EditorGUILayout.Space(6);
 
             // ── Validation ──────────────────────────────────────────────────────
