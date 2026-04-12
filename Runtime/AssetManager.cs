@@ -101,8 +101,8 @@ namespace AssetManager.Runtime
         [Tooltip("When enabled, merge registry entries from a JSON manifest in StreamingAssets/ at startup.")]
         [SerializeField] private bool loadManifestFromJson = false;
 
-        [Tooltip("Path relative to StreamingAssets/ (e.g. 'asset_manifest.json' or 'Mods/asset_manifest.json').")]
-        [SerializeField] private string manifestJsonPath = "asset_manifest.json";
+        [Tooltip("Path relative to StreamingAssets/ (e.g. 'asset_manifest/' or 'Mods/asset_manifest.json').")]
+        [SerializeField] private string manifestJsonPath = "asset_manifest/";
 
         // -------------------------------------------------------------------------
         // Events
@@ -147,12 +147,24 @@ namespace AssetManager.Runtime
 
         private void LoadManifestJson()
         {
-            string path = Path.Combine(Application.streamingAssetsPath, manifestJsonPath);
-            if (!File.Exists(path))
+            string fullPath = Path.Combine(Application.streamingAssetsPath, manifestJsonPath);
+            if (Directory.Exists(fullPath))
             {
-                Debug.LogWarning($"[AssetManager] Manifest JSON not found: {path}");
-                return;
+                foreach (var file in Directory.GetFiles(fullPath, "*.json", SearchOption.TopDirectoryOnly))
+                    MergeAssetEntriesFromFile(file);
             }
+            else if (File.Exists(fullPath))
+            {
+                MergeAssetEntriesFromFile(fullPath);
+            }
+            else
+            {
+                Debug.LogWarning($"[AssetManager] Manifest JSON not found: {fullPath}");
+            }
+        }
+
+        private void MergeAssetEntriesFromFile(string path)
+        {
             try
             {
                 var wrapper = JsonUtility.FromJson<AssetManifestJson>(File.ReadAllText(path));
@@ -173,7 +185,7 @@ namespace AssetManager.Runtime
                         _index[e.id] = e;
                     }
                 }
-                Debug.Log($"[AssetManager] Asset manifest merged from {path}.");
+                Debug.Log($"[AssetManager] Merged from {path}.");
             }
             catch (Exception ex)
             {

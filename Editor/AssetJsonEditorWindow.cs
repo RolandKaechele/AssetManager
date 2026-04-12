@@ -18,7 +18,8 @@ namespace AssetManager.Editor
     /// </summary>
     public class AssetJsonEditorWindow : EditorWindow
     {
-        private const string JsonFileName = "asset_manifest.json";
+        private const string JsonFolderName   = "asset_manifest";
+        private const string JsonSaveFileName = "asset_manifest.json";
 
         private AssetManifestEditorBridge _bridge;
         private UnityEditor.Editor        _bridgeEditor;
@@ -62,7 +63,7 @@ namespace AssetManager.Editor
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
             EditorGUILayout.LabelField(
-                Path.Combine("StreamingAssets", JsonFileName),
+                $"StreamingAssets/{JsonFolderName}/",
                 EditorStyles.miniLabel);
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("Load", EditorStyles.toolbarButton, GUILayout.Width(50))) Load();
@@ -72,47 +73,46 @@ namespace AssetManager.Editor
 
         private void Load()
         {
-            var path = Path.Combine(Application.streamingAssetsPath, JsonFileName);
+            string folderPath = Path.Combine(Application.streamingAssetsPath, JsonFolderName);
             try
             {
-                if (!File.Exists(path))
+                var list = new List<AssetEntry>();
+                if (Directory.Exists(folderPath))
                 {
-                    File.WriteAllText(path, JsonUtility.ToJson(new AssetManifestEditorWrapper(), true));
+                    foreach (var file in Directory.GetFiles(folderPath, "*.json", SearchOption.TopDirectoryOnly))
+                    {
+                        var w = JsonUtility.FromJson<AssetManifestEditorWrapper>(File.ReadAllText(file));
+                        if (w?.entries != null) list.AddRange(w.entries);
+                    }
+                }
+                else
+                {
+                    Directory.CreateDirectory(folderPath);
+                    File.WriteAllText(Path.Combine(folderPath, JsonSaveFileName), JsonUtility.ToJson(new AssetManifestEditorWrapper(), true));
                     AssetDatabase.Refresh();
                 }
-
-                var w = JsonUtility.FromJson<AssetManifestEditorWrapper>(File.ReadAllText(path));
-                _bridge.entries = new List<AssetEntry>(
-                    w.entries ?? Array.Empty<AssetEntry>());
-
+                _bridge.entries = list;
                 if (_bridgeEditor != null) { DestroyImmediate(_bridgeEditor); _bridgeEditor = null; }
-
-                _status     = $"Loaded {_bridge.entries.Count} asset entries.";
+                _status = $"Loaded {list.Count} asset entries from {JsonFolderName}/.";
                 _statusError = false;
             }
-            catch (Exception e)
-            {
-                _status     = $"Load error: {e.Message}";
-                _statusError = true;
-            }
+            catch (Exception e) { _status = $"Load error: {e.Message}"; _statusError = true; }
         }
 
         private void Save()
         {
             try
             {
-                var w    = new AssetManifestEditorWrapper { entries = _bridge.entries.ToArray() };
-                var path = Path.Combine(Application.streamingAssetsPath, JsonFileName);
+                string folderPath = Path.Combine(Application.streamingAssetsPath, JsonFolderName);
+                if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+                var w = new AssetManifestEditorWrapper { entries = _bridge.entries.ToArray() };
+                var path = Path.Combine(folderPath, JsonSaveFileName);
                 File.WriteAllText(path, JsonUtility.ToJson(w, true));
                 AssetDatabase.Refresh();
-                _status     = $"Saved {_bridge.entries.Count} entries to {JsonFileName}.";
+                _status = $"Saved {_bridge.entries.Count} asset entries to {JsonFolderName}/{JsonSaveFileName}.";
                 _statusError = false;
             }
-            catch (Exception e)
-            {
-                _status     = $"Save error: {e.Message}";
-                _statusError = true;
-            }
+            catch (Exception e) { _status = $"Save error: {e.Message}"; _statusError = true; }
         }
     }
 

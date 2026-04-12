@@ -11,7 +11,7 @@ Maps logical string ids to `Resources/` paths (or `StreamingAssets/` file overri
 - **Caching** — assets are loaded once and stored; repeated `Get<T>` calls return cached instances
 - **Preloading** — `PreloadAll()` or `Preload(id)` to warm the cache during loading screens
 - **Sprite / Texture2D mod override** — set `modOverridePath` to a PNG/JPG path relative to `StreamingAssets/`; the file is decoded at runtime and replaces the `Resources/` version
-- **JSON / Modding** — load and merge registry entries from `StreamingAssets/asset_manifest.json`; JSON entries override Inspector entries by id and can add new ones; cache is invalidated for updated entries
+- **JSON / Modding** — load and merge registry entries from `StreamingAssets/asset_manifest/`; JSON entries override Inspector entries by id and can add new ones; cache is invalidated for updated entries
 - **EventManager integration** — fires `AssetLoaded` as a named GameEvent on first cache (activated via `ASSETMANAGER_EM`)
 - **Custom Inspector** — per-entry cache status with Preload All / Release All controls at runtime
 - **Odin Inspector integration** — `SerializedMonoBehaviour` base for full Inspector serialization of complex types; runtime-display fields marked `[ReadOnly]` in Play Mode (activated via `ODIN_INSPECTOR`)
@@ -61,7 +61,7 @@ npm install
 | `entries` | *(empty)* | All asset registry entries |
 | `preloadOnAwake` | `false` | Load all entries into cache on Awake |
 | `loadManifestFromJson` | `false` | Merge from JSON manifest on Awake |
-| `manifestJsonPath` | `"asset_manifest.json"` | Path relative to `StreamingAssets/` |
+| `manifestJsonPath` | `"asset_manifest/"` | Folder relative to `StreamingAssets/` containing `.json` files to merge. Falls back to single-file mode if the value points to an existing file. |
 
 ### 2. Retrieve assets
 
@@ -98,7 +98,10 @@ am.ReleaseAll();                     // clear entire cache
 
 ## JSON / Modding
 
-Enable `loadManifestFromJson` and place `asset_manifest.json` in `StreamingAssets/`.
+Enable `loadManifestFromJson` and place one or more `.json` files in `StreamingAssets/asset_manifest/`.
+All `*.json` files in the folder are loaded and merged by `id` at startup.
+
+**Example:** `StreamingAssets/asset_manifest/main.json`
 
 ```json
 {
@@ -173,9 +176,9 @@ Open via **JSON Editors → Asset Manager** in the Unity menu bar, or via the **
 
 | Action | Result |
 | ------ | ------ |
-| **Load** | Reads `StreamingAssets/asset_manifest.json`; creates the file if missing |
+| **Load** | Reads all `*.json` from `StreamingAssets/asset_manifest/`; creates the folder if missing |
 | **Edit** | Add / remove / reorder entries using the Inspector list |
-| **Save** | Writes back to `StreamingAssets/asset_manifest.json` and calls `AssetDatabase.Refresh()` |
+| **Save** | Writes to `StreamingAssets/asset_manifest/asset_manifest.json` and calls `AssetDatabase.Refresh()` |
 
 With **ODIN_INSPECTOR** active, the list uses Odin's enhanced drawer (drag-to-sort, collapsible entries).
 
