@@ -18,8 +18,7 @@ namespace AssetManager.Editor
     /// </summary>
     public class AssetJsonEditorWindow : EditorWindow
     {
-        private const string JsonFolderName   = "asset_manifest";
-        private const string JsonSaveFileName = "asset_manifest.json";
+        private const string JsonFolderName = "asset_manifest";
 
         private AssetManifestEditorBridge _bridge;
         private UnityEditor.Editor        _bridgeEditor;
@@ -88,7 +87,6 @@ namespace AssetManager.Editor
                 else
                 {
                     Directory.CreateDirectory(folderPath);
-                    File.WriteAllText(Path.Combine(folderPath, JsonSaveFileName), JsonUtility.ToJson(new AssetManifestEditorWrapper(), true));
                     AssetDatabase.Refresh();
                 }
                 _bridge.entries = list;
@@ -105,11 +103,16 @@ namespace AssetManager.Editor
             {
                 string folderPath = Path.Combine(Application.streamingAssetsPath, JsonFolderName);
                 if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-                var w = new AssetManifestEditorWrapper { entries = _bridge.entries.ToArray() };
-                var path = Path.Combine(folderPath, JsonSaveFileName);
-                File.WriteAllText(path, JsonUtility.ToJson(w, true));
+                int saved = 0;
+                foreach (var entry in _bridge.entries)
+                {
+                    if (string.IsNullOrEmpty(entry.id)) continue;
+                    var w = new AssetManifestEditorWrapper { entries = new[] { entry } };
+                    File.WriteAllText(Path.Combine(folderPath, $"{entry.id}.json"), JsonUtility.ToJson(w, true));
+                    saved++;
+                }
                 AssetDatabase.Refresh();
-                _status = $"Saved {_bridge.entries.Count} asset entries to {JsonFolderName}/{JsonSaveFileName}.";
+                _status = $"Saved {saved} asset entry file(s) to {JsonFolderName}/";
                 _statusError = false;
             }
             catch (Exception e) { _status = $"Save error: {e.Message}"; _statusError = true; }
